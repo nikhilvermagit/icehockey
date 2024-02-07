@@ -1,0 +1,583 @@
+---
+title: "Ice Hockey: Sports Analysis Project"
+subtitle: Group 1
+date: 27 November 2023
+author:
+  - name: Bevan Stanely
+    id: bs
+    email: h20230860@pilani.bits-pilani.ac.in
+  - name: Nikhil Verma
+    id: nv
+  - name: Shantanu Sengupta
+    id: ss
+  - name: Abhishek Kumar
+    id: ak
+  - name: Gubbala Hari Priya
+    id: hp
+  - name: Lakshay Sharma
+    id: ls
+  - name: Sunku Vydehi
+    id: sv
+format:
+  docx:
+    toc: true
+    toc-title: Table of Contents
+    standalone: true
+    number-sections: true
+    highlight-style: atom-one
+  pdf:
+    pdf-engine: pdfroff
+citation: true
+link-citations: true
+bibliography: ref.bib
+---
+
+{{< pagebreak >}}
+
+# Executive Summary
+
+Ice hockey is a fast-paced team sport renowned for its combination of speed, physicality, and skill, predominantly played in cold-weather nations like Canada, the USA, Russia, Sweden, and Finland. Women's ice hockey, a variant of the sport played exclusively by female athletes, shares similarities with men's hockey but boasts its distinct history. Since 1990, the International Ice Hockey Federation (IIHF) has organized the IIHF World Women's Championship, showcasing the growth of women's ice hockey. 
+
+The USA took the championship in the current year, with Canada coming in second. Since the inception of the competition, they have been regularly among the winners. The first eight championships were won by Canada, whereas the United States dominated in the more recent editions, taking home ten out of the last 14 championships[@WomenWorldChampionship].
+
+The main objective in ice hockey is to score goals by shooting a puck into the opposing team's net. A standard game comprises three periods, each lasting 20 minutes, with intermissions for player rest and ice maintenance. Victory goes to the team with the most goals after these three periods.
+
+In a typical lineup, each team fields six players simultaneously on the ice, featuring a goaltender (goalie) and five skaters. These skaters are typically divided into three forwards (left wing, center, and right wing) and two defensemen.
+
+To maintain fairness and uphold the competitive spirit of the game, ice hockey employs an extensive set of rules and penalties. Players who commit infractions can be temporarily sidelined in the penalty box, leading to power plays (when one team has more players on the ice) or penalty kills (when a team is shorthanded). These regulations play a crucial role in preserving the integrity of the sport.
+
+Our analysis involves the single-year data of the 2023 IIHF World Women's Championship. We will address the individual player performance with linear regression and identify the key attributes affecting the performance.
+
+![[@BasicIceHockey]](img/Ice_hockey_layout.jpg){width="500"}
+
+# **Problem Statement**
+
+## **What are the critical factors predicting a player's performance?**
+
+The challenge is to systematically identify and analyze the key factors that reliably predict a player's performance. This includes analyzing the physical, skill-based, psychological, and strategic elements [@niggDemographicPhysiologicalPsychological2020] that contribute to a player's effectiveness in the game. There is a need for a framework that allows coaches, teams, and players to make data-driven decisions and improve the overall competitive edge in the sport.
+
+For this study, we only looked at the official data on the physical and game statistics of 203 forwards and defenders. The rationale behind the decision to exclude goalies from our dataset stems from the disparity in their performance metrics with forwards and defenders.
+
+In women's ice hockey, the publicly available data is limited in terms of how important the attribute is for the players' performance. Furthermore, there is currently no tidy dataset available. So, we are collecting and putting together information from official documents and extending it. We also want to look at the player statistics of the participants in the 2023 Women's Ice Hockey World Championship and identify the key performance indicators for high-performing players.
+
+{{< pagebreak >}}
+
+# **Proposed Solution**
+
+We will compile a tidy dataset using publicly available data from the 2023 Women's Ice Hockey World Championship. Furthermore, we will perform regression analysis to identify the dependence of the individual variables on the player's performance. We expect to derive critical insights that could have implications for team strategizing. The insights will also help ice hockey fans understand their favorite players better.
+
+The attributes of the data[^1] collected are as follows
+
+[^1]: The dataset is provided in [data.csv](data.csv)
+
+|     |                             |                                                                                                                |
+|-----|-----------------------------|----------------------------------------------------------------------------------------------------------------|
+| No. | Attribute                   | Description                                                                                                    |
+|     | **Dependent variable**      |                                                                                                                |
+| 1   | Points/Game                 | Average of points scored across all the games played.                                                          |
+|     | **Independent variables**   |                                                                                                                |
+| 2   | Position                    | Player-position: Forwards or Defensemen (Goalies are ignored since their performance metrics are different)    |
+| 3   | Goals                       |                                                                                                                |
+| 4   | Assist                      | Goals that were assisted by focal player                                                                       |
+| 5   | Country                     | Team played under                                                                                              |
+| 6   | Games played                | Total games played by the player in the current season.                                                        |
+| 7   | Height                      | In cms                                                                                                         |
+| 8   | Weight                      | In Kg                                                                                                          |
+| 9   | Penalties in minutes        | Penalty duration over the championship                                                                         |
+| 10  | +/- Plus/minus              | Player's goal differential while they are on the ice                                                           |
+| 11  | Shots on goal(SOG)          | The number of attempts made by a player to score a goal that directly challenge the opposing team's goaltender |
+| 12  | Age                         |                                                                                                                |
+| 13  | Shoots (left or right)      | Player handedness                                                                                              |
+| 14  | Total minutes/s played (TM) | Total player time on ice                                                                                       |
+
+Our choice of points for the dependent variable covers a player's ability to score and the team spirit assisting their teammates in scoring. As a game, hockey uses points for ranking purposes, reinforcing our choice. The remaining independent variables were picked from the player parameters available.
+
+## Variable Significance
+
+We can group the things that affect how a player plays a game into different categories.
+
+### Individual Characteristics
+
+The individual player possesses distinct characteristics such as height, weight, age, position, and player handedness (shooting). Since they could affect individual performance, they would be useful for our model.
+
+### Performance Characteristics
+
+Resulting from the players' participation in the championship are variables pertaining to the outcome of their participation. Goals, assists, games played, penalties in minutes, +/- differential, shots on goals, and total minutes played are performance variables. The average of total goals scored with assists is our dependent variable. The remaining variables indicate how the players' time on the ice was spent.
+
+Finally, the variable country groups the players with their teammates. Ice hockey being a team sport, the player's performance is linked to their teammates. Therefore, we could use it to assess the player performance distribution within the team.
+
+We will use the following data sources for the data.
+
+| Sr. no. | Data                                                 |
+|---------|------------------------------------------------------|
+| 1       | Quant hockey Website [-@IIHFWorldChampionship]       |
+| 2       | IIHF Official Website [-@WomenWorldChampionship]     |
+| 3       | Team USA [-@USAPlayerStatistics2023]                 |
+| 4       | Team Japan [-@JapanPlayerStatistics2023]             |
+| 5       | Team Canada [-@CanadaPlayerStatistics2023]           |
+| 6       | Team Switzerland [-@SwitzerlandPlayerStatistics2023] |
+| 7       | Team Czech Republic [-@CzechiaPlayerStatistics2023]  |
+| 8       | Team France [-@FrancePlayerStatistics2023]           |
+| 9       | Team Finland [-@FinlandPlayerStatistics2023]         |
+| 10      | Team Germany [-@GermanyPlayerStatistics2023]         |
+| 11      | Team Sweden [-@SwedenPlayerStatistics2023]           |
+| 12      | Team Hungary [-@HungaryPlayerStatistics2023]         |
+
+## Limitations
+
+We foresee two limitations of the dataset, which should be accounted for in the analysis.
+
+1.  Small sample size compared to other tournaments
+
+2.  The tournament had two parts. 1st part was a group stage and 2nd a knockout competition, giving more match time and the opportunity to score more points for qualified teams.
+
+{{< pagebreak >}}
+
+# Timeline
+
+The anticipated time frame for the project tasks is as follows.
+
+|                          |                    |
+|--------------------------|--------------------|
+| Task                     | Due Date           |
+| Finalize Data Collection | 5th September 2023 |
+| Mid Term Review          | 3rd October 2023   |
+| Final Submission         | 29th November 2023 |
+
+{{< pagebreak >}}
+
+# Analysis
+
+## Exploratory Data Analysis
+
+In this section, we conduct an exploratory data analysis (EDA) to understand the distribution and relationships within our dataset. Our dependent variable of interest is "Points per Game" (avg_points), and we aim to identify key factors influencing this variable.
+
+```{r}
+#| echo: false
+#| warning: false
+# Load tidyverse and read data
+library(tidyverse)
+library(knitr)
+library(coefplot)
+library(broom)
+# Read and tidy data
+df = read_csv("data.csv")
+```
+
+To get an idea of our data, we will check the data type of the variables.
+
+```{r}
+#| label: tbl-datatypes
+#| tbl-cap: The count of different data types read.
+df |> map_chr(type_sum) |>
+  as_tibble_row() |>
+  pivot_longer(everything()) |>
+  count(value) |> kable()
+```
+
+\
+The data set includes four categorical variables, eleven numerical variables, and a unique time-varying variable. The time variable is converted into seconds. Furthermore, we will also eliminate variables related to the dependent variable to avoid overfitting the linear model to the data.
+
+```{r}
+# Drop since they are related to the dependent variable
+df = df |> select(!c(games_played_gp,goals_g, assists_a, points))
+# Convert duration to seconds
+df = df |>  mutate(total_minutes_as_duration =
+                     as.numeric(total_minutes_as_duration, unit = "secs")) |>
+  # Rename some columns for easier analysis
+  rename(
+    avg_points = points_per_game_ppg,
+    penalty_dur = penalties_in_minutes_pim,
+    duration = total_minutes_as_duration,
+    g_diff = plus_minus_goal_differential,
+    sog = shots_on_goal_sog
+  )
+```
+
+Subsequently, we generate a statistical summary of all variables to examine their distribution.
+
+```{r}
+#| label: tbl-stat-summary
+#| echo: false
+#| tbl-cap: "Statistical Summary of Numerical Columns"
+#| tbl-colwidths: [60,40]
+df |> summarise(across(
+  where(is.numeric),
+  .names = "{.col}-{.fn}",
+  .fns = list(
+    min = min,
+    median = median,
+    mean = mean,
+    stdev = sd,
+    q25 =  ~ quantile(., 0.25),
+    q75 =  ~ quantile(., .75),
+    max = max
+  )
+)) |>
+  pivot_longer(everything(),
+               names_sep = '-',
+               names_to = c('variable', '.value')) |> 
+  kable()
+```
+
+```{r}
+#| label: corr-functions
+#| echo: false
+# Calculate correlation matrix
+df.corr <- function(df, method) {
+  df = df |>  select(where(is.numeric)) |>  cor(method = method)
+  mrows <<- rownames(df)
+  # Convert the matrix output to tibble dataframe
+  
+  df = df |>
+    as_tibble(rownames = "var_1") |>
+    gather(key = "var_2", value =
+             "cor", -1) |> drop_na()
+  return(df)
+}
+# Correlation Plotting Function
+plot.corr <- function(df, method) {
+  # Plot correlation heatmap
+  ggplot(df.corr(df, method),
+         aes(var_1, var_2, fill = cor, label = round(cor, 2))) +
+    theme(axis.text.x = element_text(
+      angle = 90,
+      vjust = 0.5,
+      hjust = 1
+    ),
+    axis.title = element_blank(),) +
+    geom_tile() + ylim(mrows) + xlim(rev(mrows)) +
+    scale_fill_gradient2(
+      low = "blue",
+      high = "red",
+      mid = "white",
+      midpoint = 0,
+      limit = c(-1, 1),
+      space = "Lab",
+      name = "Correlation"
+    ) +
+    geom_text(color = "black")
+}
+```
+
+```{r}
+#| label: fig-corr-1
+#| fig-width: 8
+#| fig-height: 8
+#| fig-cap: "Correlation Matrix of all the Variables"
+plot.corr(df, "pearson")
+```
+
+The relationships between the variables are reflected in the correlation matrix. It is evident that there are no independent variable pairs with an absolute correlation greater than 0.7. Therefore, we can proceed with our features because of the absence of multicollinearity.
+
+We will now explore the DV-IV relationships in greater detail. In the XY scatter plot of the dependent variable with each independent variable, we use smoothing to find the best curve. This would enable us to conduct a visual analysis of the linearity of the relationship.
+
+```{r}
+#| label: fig-scatter-1
+#| fig-cap: "The figure shows the relationship between the each numeric independent variable with the dependent variable average points."
+#| fig-width: 10
+#| fig-height: 10
+#| warning: false
+df |> select(where(is.numeric)) |>
+  gather(yvar, val,-avg_points) |>
+  ggplot(aes(val, avg_points)) +
+  geom_point() +
+  stat_smooth(geom = "smooth") +
+  facet_wrap(yvar ~ ., ncol = 2, scales = "free_x") +
+  labs(x = "Numeric Independent Variables", y = "Average Points(DV)", title =
+         "IV vs DV Scatter Plot")
+```
+
+All variables, except duration, have an approximately linear relationship with average points. The occurrence of an outlier in the duration results in a significant deviation from linearity. After further investigation, we conclude that the anomaly is the result of human error in data collection.
+
+```{r}
+#| label: tbl-outlier
+#| tbl-cap: The outlier in the duration data.
+df |> select(Name, country, duration) |>
+  filter(duration == max(duration)) |>
+  kable()
+```
+
+To address the anomaly, we rectify the duration for Emma Ingold and reassess the linear correlation between the duration and the dependent variable.
+
+```{r}
+#| label: fig-replace-outlier
+#| fig-cap: Duration vs Average Points scatter plot after replacing the outlier.
+#| fig-width: 8
+df = df |> mutate(duration = replace(duration,
+                                     Name == "Emma Ingold",
+                                     as.numeric(
+                                       as.difftime("01:30:24",
+                                                   format = "%H:%M:%S",
+                                                   units = "secs")
+                                     )))
+df |> select(avg_points, duration) |>
+  ggplot(aes(duration, avg_points)) +
+  geom_point() +
+  stat_smooth(geom = "smooth") +
+  labs(x="Total Player time in Seconds", y="Average Points(DV)")
+```
+
+After fixing the outlier in the duration variable, the linear relationship becomes more apparent.
+
+Data quality and consistency are ensured by a final check of the correlation matrix and box plots.
+
+```{r}
+#| label: fig-corr-2
+#| fig-width: 8
+#| fig-height: 8
+#| fig-cap: "Correlation Matrix after fixing the outlier"
+# Plot correlation heatmap
+plot.corr(df,"pearson")
+```
+
+We can see that fixing the outlier increased the correlation between the duration and average points from 0.09 to 0.53. This increase may prove advantageous to our modeling efforts.
+
+```{r}
+#| label: fig-boxplot-1
+#| fig-cap: "The figure illustrates the connection between the categorical independent variables and the dependent variable's average points via box plots. Of the three IVs, country, position, and shoot, country seems to be the most informative."
+#| fig-width: 15
+#| fig-height: 10
+#| warning: false
+df |> select(-where(is.numeric), -Name, avg_points) |>
+  gather(yvar, val,-avg_points) |>
+  ggplot(aes(reorder(val, avg_points), avg_points, fill = val)) +
+  geom_boxplot() +
+  facet_wrap(yvar ~ ., ncol = 2, scales = "free_x") +
+  theme(legend.position = "none") +
+  labs(x = "Categorical Independent Variables", y = "Average Points(DV)", title =
+         "IV vs DV Box Plot")
+```
+
+The data appears to be in a satisfactory state, and we can proceed with the construction of a regression model.
+
+## Regression Analysis
+
+We start by making a model without any data. Then, we choose one that has all the IVs we are studying now\[1\]. Also, we will make two models: one that doesn't have categories\[2\] and another that looks at how IVs interact with each other\[3\]. In the latter scenario, we shall consider all pairwise interactions and second-order terms.
+
+```{r}
+#| label: mlr
+nullModel = lm(avg_points ~ 1, data=df)
+# the largest model we will accept
+fullModel1 = lm(avg_points ~ ., data = df |> select(-Name)) # All variables
+fullModel2 = lm(avg_points ~ ., data = df |> select(-c(Name, position, country, shoot))) # All numeric variables
+fullModel3 = lm(avg_points ~ . ^ 2, data = df |> select(-Name)) # All variables with all combinations of interaction
+```
+
+We will utilize a vector function to iterate through the models. A stepwise regression strategy that uses both forward selection and backward elimination will be used.
+
+```{r}
+#| output: false
+#| warning: false
+model = lapply(list(fullModel1, fullModel2, fullModel3), function(x)
+  step(
+    x,
+    scope = list(lower = nullModel, upper = x),
+    direction = "forward"
+  ))
+```
+
+```{r}
+#| label: model-equations
+model_residual = lapply(model,fortify)
+lapply(model,function(x)x$call)
+```
+
+The interaction model has too many variables, according to the model equations. It is difficult to visualize such a model. Therefore, we will only graph the coefficients of the other two models..
+
+```{r}
+#| label: fig-coefficient-plot
+#| fig-width: 8
+#| fig-height: 8
+#| fig-cap: The coefficients for the full model[1] and the model without categories[2] are shown in the figure. The intercepts and a few categories of the country variable are evidently devoid of statistical significance, as their confidence interval contains zero. The t-test statistic can be used to determine the significance of variables with coefficients close to 0.
+multiplot(model[1:2])
+```
+
+```{r}
+#| label: tbl-summary-parameters
+#| tbl-cap: The table compares the final model parameters for the full model[1], the model without categories[2], and the complex model[3] with all pairs of interactions. Model 3 best explains our dataset, with a R2 value of 0.93.  It also has the lowest RSS number under deviance. Then comes the full model[1], which has a R2 of 0.74. All the three models have significant p-values from the F-Test. Complex model 3 is the optimal model for AIC, whereas model 2 is the optimal model for BIC.
+model_summary = lapply(1:3, function(x)
+  glance(model[[x]]) |>
+    pivot_longer(everything(),names_to = "Parameter", values_to = as.character(x)))
+model_summary[[1]] |>
+  left_join(model_summary[[2]]) |>
+  left_join(model_summary[[3]]) |> 
+  kable()
+```
+
+Given the model parameters, we believe it is ideal to proceed with model 1 to avoid both under-fitting and over-fitting.
+
+```{r}
+#| label: tbl-summary-coefficients
+#| tbl-cap: Model 1 includes the dependent variable average points and several predictor variables, such as position, country, height, weight, penalty_dur, g_diff, sog, age, shoot, and duration. The position variable is marginally significant. However, the variables country, g_diff, sog, and duration are highly significant, with p-values below 0.05.
+tidy(model[[1]]) |> mutate(signific = case_when(
+  between(p.value, 0.05, 0.1) ~ '.',
+  between(p.value, 0.01, 0.05) ~
+    '*',
+  between(p.value, 0.001, 0.01) ~
+    '**',
+  between(p.value, 0, 0.001) ~
+    '***',
+  TRUE ~ ""
+)) |> mutate_if(is.numeric,  ~
+                  round(.x, digits = 4)) |> kable()
+```
+
+Upon completion of the model fitting process, we evaluate the residuals of model 1 for model validation.
+
+```{r}
+#| label: fig-residual-plot
+#| fig-cap: The scatter plots of the residual vs. fitted value for the three models. There is heteroscedasticity in all three figures
+#| warning: false
+#| fig-width: 10
+#| fig-height: 10
+
+m.res = lapply(model_residual, function(x) x |> select(.fitted, .stdresid))
+model_residual_final = m.res[[1]] |> mutate(model=1) |> add_row(m.res[[2]] |> mutate(model=2)) |> add_row(m.res[[3]] |> mutate(model=3))
+model_residual_final |>
+  ggplot(aes(x = .fitted, y = .stdresid)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  stat_smooth(geom = "smooth") +
+  labs(x = "Fitted Values", y = "Residuals", color="Country") +
+  facet_wrap(model~.,ncol = 1 )
+```
+
+```{r}
+#| label: fig-redsidual-facet
+#| fig-cap: The residual plot with countries shows an approximate homoscedastic behavior when separated out.
+#| warning: false
+#| fig-width: 10
+#| fig-height: 10
+model_residual[[1]] |>
+  ggplot(aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  geom_smooth(se = FALSE) +
+  labs(x = "Fitted Values", y = "Residuals") +
+  facet_wrap(. ~country, scales = "free_x", ncol = 3)
+```
+
+The residual analysis ensures that the model assumptions are met. Additionally, we check the normality of residuals using a QQ plot.
+
+```{r}
+#| label: fig-qq-facet
+#| fig-cap: The figure depicts the qq-plot for the standardized residuals of all three models. All three models show a normal distribution of residuals.
+#| warning: false
+#| fig-width: 10
+#| fig-height: 10
+model_residual_final |> 
+  ggplot(aes(sample=.stdresid)) +
+  stat_qq() +
+  geom_abline() +
+  facet_wrap(model~.,ncol = 2 )
+```
+
+The QQ plot confirms the normal distribution of residuals. The regression analysis provides insights into the relationships between variables and their impact on average points in women's ice hockey.
+
+### Interpretation
+
+From the @tbl-summary-parameters and @tbl-summary-coefficients, we can interpret the Model 1[^2]. The very low p-value (\< 2.2e-16) for the f-test of the model suggests that the overall model is statistically significant. This implies that there exists a significant linear relationship between the predictors and the response variable.
+
+[^2]: Refer to @fig-coefficient-plot for coefficient plot.
+
+#### Coefficients:
+
+-   **Intercept**: The estimated `avg_points` when all other predictors are zero is approximately -0.123. As such this is insignificant.
+
+-   **positionF**: Forwards have an estimated increase in `avg_points` over the baseline set by the defenders, by approximately 0.0835 when other variables are held constant. This result is marginally significant (*p = 0.0587*).
+
+-   **countryCzech Republic, countryFinland, countryFrance, countryGermany, countryHungary, countryJapan, countrySweden, countrySwitzerland, countryUS**: These coefficients represent the estimated change in `avg_points` for players from these countries compared to the baseline set by **Canada**.
+
+-   **height**: For a one `cm` increase in height, there is an estimated decrease of approximately 0.0030 in `avg_points`. However, this change is not statistically significant, as the p-value is 0.4617.
+
+-   **weight**: For a one `Kg` increase in weight, there is an estimated increase of approximately 0.0026 in `avg_points`. However, this change is not statistically significant, as the p-value is 0.4906.
+
+-   **penalty_dur**: For a one `second` increase in penalty duration, there is an estimated increase of approximately 0.0040 in `avg_points`. However, this change is not statistically significant, as the p-value is 0.3570.
+
+-   **g_diff**: For a one-unit increase in goal difference, there is an estimated increase of approximately 0.0644 in `avg_points`. This change is highly statistically significant (p \< 0.001), suggesting a strong positive relationship with `avg_points`.
+
+-   **sog**: For a one-unit increase in shots on goal, there is an estimated increase of approximately 0.0242 in `avg_points`. This change is highly statistically significant (p \< 0.001), indicating a positive association with `avg_points`.
+
+-   **age**: For a one-year increase in age, there is an estimated increase of approximately 0.0026 in `avg_points`. However, this change is not statistically significant, as the p-value is 0.5733.
+
+-   **shootR**: Right shooters have an estimated increase in `avg_points` over the baseline set by the left shooters, by approximately 0.05878 when other variables are held constant. However, this change is not statistically significant, as the p-value is 0.1493.
+
+-   **duration**: For a one second increase in duration, there is an estimated increase of approximately 0.00004 in `avg_points`. This change is statistically significant (p = 0.0007), suggesting a positive relationship with `avg_points`.
+
+#### Significance:
+
+-   The significance of each coefficient is indicated by the p-values. For instance:
+
+    -   `countryCzech Republic, countryFrance, countryGermany, countryHungary, countryJapan, countrySweden, countrySwitzerland, g_diff, sog, duration` are highly significant (*p \< 0.05*).
+
+    -   `positionF` is marginally significant (*p = 0.0587*).
+
+    -   `height, weight, penalty_dur, age, shootR` are not statistically significant based on conventional significance levels (*p \> 0.05*).
+
+#### Model Fit:
+
+-   **Multiple R-squared**: The model explains approximately 74.33% of the variance in the dependent variable `avg_points`.
+
+-   **Adjusted R-squared**: This is a modified version of the R-squared that adjusts for the number of predictors in the model. It is 71.82% in this model.
+
+-   **Residual standard error**: This is an estimate of the standard deviation of the residuals. It is 0.2507 in this model.
+
+In summary, the model appears to be a good fit, explaining a substantial portion of the variance in `avg_points`. Several predictors are statistically significant, while others are not. Consideration can be given to the practical significance of the coefficients and potential refinement of the model based on domain knowledge. This could potentially hold significant value in incorporating interaction without overfitting.
+
+We also wished to check the semi-partial correlation to understand the unique contribution of each individual predictor variable to the dependent variable (`avg_points`), while accounting for the effects of all other predictors. It helps answer the question, "How much does the correlation between a specific predictor and the dependent variable change when we control for the other predictors in the model?" However, we faced issues calculating the same with categorical variables. Hence, we only checked the semi-partial correlation regarding the numeric variables @tbl-spcor.
+
+```{r}
+#| label: tbl-spcor
+#| tbl-cap: The semi-partial correlations of the significant numerical variables.
+ppcor::spcor(df |> select_if(is.numeric), method = "pearson")$estimate |>
+  as_tibble(rownames = "rowname") |>
+  filter(rowname == "avg_points") |>  select("g_diff", "sog", "duration") |> kable()
+```
+
+## Applications of the model
+
+We elucidated the linear relationships between the predictor variables and response variables with our model. However, we also wished to explore the business aspects of this model. Therefore, in this section, we try to model an increase in attacking strategy. We implement this in the model through the shots on goal variable. We will assume that all the countries have one game with a hypothetical opponent, and we will calculate the overall points scored by the country. This will be our prediction. We will compare this with the overall observed and estimated points.
+
+```{r}
+#| label: tbl-application
+#| tbl-cap: The table shows how much a country's overall points go up when their players increase their attacking strategy, which is reflected by a 20% increase in the shots on goal predictor variable. We assume a single game per country in which all players participated. The aggregate points from both observations and estimations are the same, as the country plays a role in the models' prediction process. We can see that more points are being scored, with an average increase of 12.4%.
+pract_app = df |> group_by(country) |> arrange(country)
+pract_app$estimate = model[[1]] |> predict(pract_app |> select(-c(Name, avg_points)))
+pract_app = pract_app |> mutate(sog = sog * 1.2)
+pract_app$prediction = model[[1]] |> predict(pract_app |> select(-c(Name, avg_points)))
+pract_app = pract_app |> group_by(country) |>  summarise(
+  Observation = sum(avg_points),
+  Estimate = sum(estimate),
+  Prediction = sum(prediction),
+  "% Increase" = round((Prediction - Observation) / Observation * 100,2)
+) 
+pract_app |> kable()
+```
+
+```{r}
+#| label: fig-pract
+#| fig-cap: The figure compares the relative increase in prediction regarding the estimate of the points scored by each country when their players increase their attacking strategy, which is reflected by a 20% increase in the shots on goal predictor variable. As per the model, there is no expense associated with enhancing the offensive approach.
+#| fig-width: 10
+#| fig-height: 2
+pract_app |> pivot_longer(cols = Estimate:Prediction) |>
+  ggplot(aes(x = reorder(country, Observation), y = value)) +
+  geom_col(aes(fill = name), position = "dodge") +
+  geom_text(
+    aes(label = ifelse(
+      name == "Estimate", paste(`% Increase`, "%"),
+      ""
+    )),
+    position = position_dodge(width = .9),
+    vjust = 0,
+    show.legend = FALSE
+  ) +
+  theme(legend.title = element_blank()) +
+  labs(x="Country", y="Aggregate Points")
+```
+
+We can see that more points are being scored, with an average increase of 12.4% across the countries. As per the model, there is no expense associated with enhancing the offensive approach.
+
+{{< pagebreak >}}
+
+# References {.unnumbered}

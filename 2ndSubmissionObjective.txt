@@ -1,0 +1,8 @@
+                                                              2nd Submission Objective
+
+1. You can now incorporate the feedback and complete the data collection exercise by 2nd October 2023, 6 p.m.
+2. The CSV data file and a small write in Quarto explaining the data file (variables) and other details will be needed for submission. 
+3. Extending the proposal document itself after incorporating the feedback will be better.
+4. Doing this will allow you to build the final report in parallel. Before midterm, we will ask you to show one of the faculties 
+how the data was collected (authenticity of data) before releasing the midterm grades. 
+
